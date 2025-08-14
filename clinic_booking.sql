@@ -24,16 +24,16 @@ DROP TABLE IF EXISTS `appointments`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `appointments` (
   `appointment_id` int NOT NULL AUTO_INCREMENT,
-  `patient_id` int DEFAULT NULL,
-  `doctor_id` int DEFAULT NULL,
+  `patient_id` int NOT NULL,
+  `doctor_id` int NOT NULL,
   `appointment_date` datetime NOT NULL,
-  `status` varchar(20) DEFAULT NULL,
+  `reason` text,
   PRIMARY KEY (`appointment_id`),
   KEY `patient_id` (`patient_id`),
   KEY `doctor_id` (`doctor_id`),
   CONSTRAINT `appointments_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`),
   CONSTRAINT `appointments_ibfk_2` FOREIGN KEY (`doctor_id`) REFERENCES `doctors` (`doctor_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -42,7 +42,6 @@ CREATE TABLE `appointments` (
 
 LOCK TABLES `appointments` WRITE;
 /*!40000 ALTER TABLE `appointments` DISABLE KEYS */;
-INSERT INTO `appointments` VALUES (1,1,1,'2025-08-20 10:30:00','Scheduled'),(2,2,2,'2025-08-21 14:00:00','Completed'),(3,3,3,'2025-08-22 09:00:00','Cancelled');
 /*!40000 ALTER TABLE `appointments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -55,17 +54,15 @@ DROP TABLE IF EXISTS `doctors`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `doctors` (
   `doctor_id` int NOT NULL AUTO_INCREMENT,
-  `first_name` varchar(50) DEFAULT NULL,
-  `last_name` varchar(50) DEFAULT NULL,
-  `phone` varchar(15) DEFAULT NULL,
+  `first_name` varchar(50) NOT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `specialization` varchar(100) NOT NULL,
+  `phone_number` varchar(15) NOT NULL,
   `email` varchar(100) DEFAULT NULL,
-  `specialization_id` int DEFAULT NULL,
   PRIMARY KEY (`doctor_id`),
-  UNIQUE KEY `phone` (`phone`),
-  UNIQUE KEY `email` (`email`),
-  KEY `specialization_id` (`specialization_id`),
-  CONSTRAINT `doctors_ibfk_1` FOREIGN KEY (`specialization_id`) REFERENCES `specializations` (`specialization_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `phone_number` (`phone_number`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -74,7 +71,6 @@ CREATE TABLE `doctors` (
 
 LOCK TABLES `doctors` WRITE;
 /*!40000 ALTER TABLE `doctors` DISABLE KEYS */;
-INSERT INTO `doctors` VALUES (1,'James','Mwangi','0745678901','j.mwangi@clinic.com',1),(2,'Jane','Otieno','0756789012','j.otieno@clinic.com',2),(3,'Peter','Kamau','0767890123','p.kamau@clinic.com',3);
 /*!40000 ALTER TABLE `doctors` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -87,16 +83,15 @@ DROP TABLE IF EXISTS `patients`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `patients` (
   `patient_id` int NOT NULL AUTO_INCREMENT,
-  `first_name` varchar(50) DEFAULT NULL,
-  `last_name` varchar(50) DEFAULT NULL,
-  `date_of_birth` date DEFAULT NULL,
-  `gender` varchar(10) DEFAULT NULL,
-  `phone` varchar(15) DEFAULT NULL,
+  `first_name` varchar(50) NOT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `date_of_birth` date NOT NULL,
+  `phone_number` varchar(15) NOT NULL,
   `email` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`patient_id`),
-  UNIQUE KEY `phone` (`phone`),
+  UNIQUE KEY `phone_number` (`phone_number`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -105,7 +100,6 @@ CREATE TABLE `patients` (
 
 LOCK TABLES `patients` WRITE;
 /*!40000 ALTER TABLE `patients` DISABLE KEYS */;
-INSERT INTO `patients` VALUES (1,'John','Doe','1990-05-15','Male','0712345678','john.doe@example.com'),(2,'Mary','Smith','1985-11-20','Female','0723456789','mary.smith@example.com'),(3,'Ali','Hassan','1993-02-10','Male','0734567890','ali.hassan@example.com');
 /*!40000 ALTER TABLE `patients` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -118,14 +112,14 @@ DROP TABLE IF EXISTS `payments`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `payments` (
   `payment_id` int NOT NULL AUTO_INCREMENT,
-  `appointment_id` int DEFAULT NULL,
-  `amount` decimal(10,2) DEFAULT NULL,
-  `payment_date` datetime DEFAULT NULL,
-  `payment_method` varchar(50) DEFAULT NULL,
+  `appointment_id` int NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `payment_date` date NOT NULL,
+  `payment_method` enum('Cash','Credit Card','Insurance') NOT NULL,
   PRIMARY KEY (`payment_id`),
   KEY `appointment_id` (`appointment_id`),
   CONSTRAINT `payments_ibfk_1` FOREIGN KEY (`appointment_id`) REFERENCES `appointments` (`appointment_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -134,33 +128,7 @@ CREATE TABLE `payments` (
 
 LOCK TABLES `payments` WRITE;
 /*!40000 ALTER TABLE `payments` DISABLE KEYS */;
-INSERT INTO `payments` VALUES (1,2,5000.00,'2025-08-21 15:00:00','Cash'),(2,1,3000.00,'2025-08-20 11:00:00','MPesa');
 /*!40000 ALTER TABLE `payments` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `specializations`
---
-
-DROP TABLE IF EXISTS `specializations`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `specializations` (
-  `specialization_id` int NOT NULL AUTO_INCREMENT,
-  `specialization_name` varchar(100) NOT NULL,
-  PRIMARY KEY (`specialization_id`),
-  UNIQUE KEY `specialization_name` (`specialization_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `specializations`
---
-
-LOCK TABLES `specializations` WRITE;
-/*!40000 ALTER TABLE `specializations` DISABLE KEYS */;
-INSERT INTO `specializations` VALUES (1,'Cardiology'),(2,'Dermatology'),(3,'General Medicine');
-/*!40000 ALTER TABLE `specializations` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -172,4 +140,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-14  9:43:01
+-- Dump completed on 2025-08-14  9:59:57
